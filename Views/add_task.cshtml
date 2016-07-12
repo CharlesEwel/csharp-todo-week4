@@ -1,0 +1,11 @@
+<form action="/task/add" method="post">
+  <label for="description">Description</label>
+  <input type="text" name="description" id="description">
+  <label for="date">Date (YYYY/MM/DD)</label>
+  <input type="date" name="date" id="date">
+  @foreach (var cat in Model)
+  {
+    <input type="radio" name="category-id" value="@cat.GetId()">@cat.GetName()<br>
+  }
+  <button type="submit" name="button">Submit</button>
+</form>

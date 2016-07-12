@@ -1,0 +1,6 @@
+<ul>
+@foreach(var task in Model)
+{
+  <li>@task.GetDescription() - @task.GetDate()</li>
+}
+</ul>

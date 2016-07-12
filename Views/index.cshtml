@@ -1,0 +1,9 @@
+<a href="/category/add"><button type="button" name="button">Add Category</button></a>
+<a href="/task/add"><button type="button" name="button">Add Task</button></a>
+<a href="/task/all"><button type="button" name="button">View All Tasks</button></a>
+<ul>
+  @foreach (var cat in Model)
+  {
+    <li><a href="/category/@cat.GetId()">@cat.GetName()</a></li>
+  }
+</ul>
