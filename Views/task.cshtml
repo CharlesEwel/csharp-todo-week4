@@ -7,7 +7,7 @@
   <ul>
     @foreach (var category in @Model["taskCategories"])
     {
-      <li>@category.GetName()</li>
+      <li><a href="/category/@category.GetId()">@category.GetName()</a></li>
     }
   </ul>
 }

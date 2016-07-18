@@ -197,19 +197,43 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO categories_tasks (category_id, task_id) VALUES (@CategoryId, @TaskId);", conn);
+      SqlDataReader rdrCheckForDuplicate = null;
+      SqlCommand cmdCheckForDuplicate = new SqlCommand("SELECT * FROM categories_tasks WHERE category_id=@CategoryId AND task_id=@TaskId", conn);
+      SqlParameter categoryIdParameterCheckForDuplicate = new SqlParameter();
+      categoryIdParameterCheckForDuplicate.ParameterName = "@CategoryId";
+      categoryIdParameterCheckForDuplicate.Value = newCategory.GetId();
+      cmdCheckForDuplicate.Parameters.Add(categoryIdParameterCheckForDuplicate);
 
-      SqlParameter categoryIdParameter = new SqlParameter();
-      categoryIdParameter.ParameterName = "@CategoryId";
-      categoryIdParameter.Value = newCategory.GetId();
-      cmd.Parameters.Add(categoryIdParameter);
+      SqlParameter taskIdParameterCheckForDuplicate = new SqlParameter();
+      taskIdParameterCheckForDuplicate.ParameterName = "@TaskId";
+      taskIdParameterCheckForDuplicate.Value = this.GetId();
+      cmdCheckForDuplicate.Parameters.Add(taskIdParameterCheckForDuplicate);
 
-      SqlParameter taskIdParameter = new SqlParameter();
-      taskIdParameter.ParameterName = "@TaskId";
-      taskIdParameter.Value = this.GetId();
-      cmd.Parameters.Add(taskIdParameter);
+      List<int> matchedJoins = new List<int> {};
+      rdrCheckForDuplicate = cmdCheckForDuplicate.ExecuteReader();
 
-      cmd.ExecuteNonQuery();
+      while(rdrCheckForDuplicate.Read())
+      {
+        matchedJoins.Add(rdrCheckForDuplicate.GetInt32(0));
+      }
+      if (rdrCheckForDuplicate != null) rdrCheckForDuplicate.Close();
+
+      if (matchedJoins.Count == 0)
+      {
+        SqlCommand cmd = new SqlCommand("INSERT INTO categories_tasks (category_id, task_id) VALUES (@CategoryId, @TaskId);", conn);
+
+        SqlParameter categoryIdParameter = new SqlParameter();
+        categoryIdParameter.ParameterName = "@CategoryId";
+        categoryIdParameter.Value = newCategory.GetId();
+        cmd.Parameters.Add(categoryIdParameter);
+
+        SqlParameter taskIdParameter = new SqlParameter();
+        taskIdParameter.ParameterName = "@TaskId";
+        taskIdParameter.Value = this.GetId();
+        cmd.Parameters.Add(taskIdParameter);
+
+        cmd.ExecuteNonQuery();
+      }
 
       if (conn != null)
       {
