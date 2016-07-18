@@ -1,0 +1,32 @@
+<h1>To Do List</h1>
+<h2>Task: @Model["task"].GetDescription()</h2>
+<hr />
+@if (@Model["taskCategories"].Count != 0)
+{
+  <h4>This task has these categories:</h4>
+  <ul>
+    @foreach (var category in @Model["taskCategories"])
+    {
+      <li>@category.GetName()</li>
+    }
+  </ul>
+}
+
+<form action='/task/@Model["task"].GetId()/delete' method="post">
+  <input type="hidden" name="_method" value="DELETE">
+  <button type="submit" name="button">Delete Task</button>
+</form>
+
+<h4>Add a category to this task:</h4>
+<form action='/task/add_category' method='post'>
+  <input id='task-id' name='task-id' type='hidden' value='@Model["task"].GetId()'>
+  <label for='category-id'>Select a category</label>
+  <select id='category-id' name='category-id' type='text'>
+    @foreach (var category in @Model["allCategories"])
+    {
+      <option value='@category.GetId()'>@category.GetName()</option>
+    }
+  </select>
+  <button type='submit'>Add</button>
+</form>
+<p><a href="/">Return to Main Page</a></p>

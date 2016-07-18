@@ -13,6 +13,12 @@ namespace ToDoList
       DBConfiguration.ConnectionString = "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=todo_test;Integrated Security=SSPI;";
     }
 
+    public void Dispose()
+    {
+      Task.DeleteAll();
+      Category.DeleteAll();
+    }
+
     [Fact]
     public void Test_CategoriesEmptyAtFirst()
     {
@@ -81,27 +87,75 @@ namespace ToDoList
     }
 
     [Fact]
-    public void Test_GetTasks_RetrievesAllTasksWithCategory()
+    public void Test_AddTask_AddsTaskToCategory()
     {
+      //Arrange
+      DateTime? taskDate = new DateTime(2016, 7, 12);
       Category testCategory = new Category("Household chores");
       testCategory.Save();
-      DateTime? taskDate = new DateTime(2016, 7, 12);
-      Task firstTask = new Task("Mow the lawn", taskDate, testCategory.GetId());
-      firstTask.Save();
-      Task secondTask = new Task("Do the dishes", taskDate, testCategory.GetId());
-      secondTask.Save();
 
+      Task testTask = new Task("Mow the lawn", taskDate);
+      testTask.Save();
 
-      List<Task> testTaskList = new List<Task> {firstTask, secondTask};
-      List<Task> resultTaskList = testCategory.GetTasks();
+      Task testTask2 = new Task("Water the garden", taskDate);
+      testTask2.Save();
 
-      Assert.Equal(testTaskList, resultTaskList);
+      //Act
+      testCategory.AddTask(testTask);
+      testCategory.AddTask(testTask2);
+
+      List<Task> result = testCategory.GetTasks();
+      List<Task> testList = new List<Task>{testTask, testTask2};
+
+      //Assert
+      Assert.Equal(testList, result);
     }
 
-    public void Dispose()
+    [Fact]
+    public void Test_GetTasks_ReturnsAllCategoryTasks()
     {
-      Task.DeleteAll();
-      Category.DeleteAll();
+      //Arrange
+      DateTime? taskDate = new DateTime(2016, 7, 12);
+      Category testCategory = new Category("Household chores");
+      testCategory.Save();
+
+      Task testTask1 = new Task("Mow the lawn", taskDate);
+      testTask1.Save();
+
+      Task testTask2 = new Task("Buy plane ticket", taskDate);
+      testTask2.Save();
+
+      //Act
+      testCategory.AddTask(testTask1);
+      List<Task> savedTasks = testCategory.GetTasks();
+      List<Task> testList = new List<Task> {testTask1};
+
+      //Assert
+      Assert.Equal(testList, savedTasks);
     }
+
+    [Fact]
+    public void Test_Delete_DeletesCategoryAssociationsFromDatabase()
+    {
+      //Arrange
+      DateTime? taskDate = new DateTime(2016, 7, 12);
+      Task testTask = new Task("Mow the lawn", taskDate);
+      testTask.Save();
+
+      string testName = "Home stuff";
+      Category testCategory = new Category(testName);
+      testCategory.Save();
+
+      //Act
+      testCategory.AddTask(testTask);
+      testCategory.Delete();
+
+      List<Category> resultTaskCategories = testTask.GetCategories();
+      List<Category> testTaskCategories = new List<Category> {};
+
+      //Assert
+      Assert.Equal(testTaskCategories, resultTaskCategories);
+    }
+
   }
 }
