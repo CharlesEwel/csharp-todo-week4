@@ -9,12 +9,22 @@ namespace ToDoList
     private int _id;
     private string _description;
     private DateTime? _date;
+    private bool _isDone;
 
     public Task(string Description, DateTime? date, int Id = 0)
     {
       _id = Id;
       _description = Description;
       _date = date;
+      _isDone = false;
+    }
+
+    public Task(string Description, DateTime? date, bool isDone, int Id = 0)
+    {
+      _id = Id;
+      _description = Description;
+      _date = date;
+      _isDone = isDone;
     }
 
     public int GetId()
@@ -31,6 +41,10 @@ namespace ToDoList
     {
       return _date;
     }
+    public bool IsDone()
+    {
+      return _isDone;
+    }
 
     public void SetDescription(string newDescription)
     {
@@ -40,6 +54,10 @@ namespace ToDoList
     public void SetDate(DateTime? newDate)
     {
       _date = newDate;
+    }
+    public void Complete()
+    {
+      _isDone = true;
     }
 
     public static List<Task> GetAll()
@@ -58,7 +76,8 @@ namespace ToDoList
         int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
         DateTime? taskDate = rdr.GetDateTime(2);
-        Task newTask = new Task(taskDescription, taskDate, taskId);
+        bool taskIsDone = rdr.GetBoolean(3);
+        Task newTask = new Task(taskDescription, taskDate, taskIsDone, taskId);
         allTasks.Add(newTask);
       }
 
@@ -113,7 +132,8 @@ namespace ToDoList
         bool idEquality = (this.GetId() == newTask.GetId());
         bool descriptionEquality = (this.GetDescription() == newTask.GetDescription());
         bool dateTimeEquality = (this.GetDate() == newTask.GetDate());
-        return (idEquality && descriptionEquality && dateTimeEquality);
+        bool completionEquality = (this.IsDone() == newTask.IsDone());
+        return (idEquality && descriptionEquality && dateTimeEquality && completionEquality );
       }
     }
 
@@ -123,7 +143,7 @@ namespace ToDoList
       SqlDataReader rdr;
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, date_time) OUTPUT INSERTED.id VALUES (@TaskDescription, @TaskDateTime);", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO tasks (description, date_time, is_done) OUTPUT INSERTED.id VALUES (@TaskDescription, @TaskDateTime, @TaskIsDone);", conn);
 
       SqlParameter descriptionParameter = new SqlParameter();
       descriptionParameter.ParameterName = "@TaskDescription";
@@ -134,9 +154,13 @@ namespace ToDoList
       dateTimeParameter.ParameterName = "@TaskDateTime";
       dateTimeParameter.Value = this.GetDate();
 
+      SqlParameter isDoneParameter = new SqlParameter();
+      isDoneParameter.ParameterName = "@TaskIsDone";
+      isDoneParameter.Value = this.IsDone();
 
 
       cmd.Parameters.Add(descriptionParameter);
+      cmd.Parameters.Add(isDoneParameter);
       cmd.Parameters.Add(dateTimeParameter);
 
       rdr = cmd.ExecuteReader();
@@ -172,14 +196,16 @@ namespace ToDoList
       int foundTaskId = 0;
       string foundTaskDescription = null;
       DateTime? foundTaskDateTime = null;
+      bool foundTaskIsDone = false;
 
       while(rdr.Read())
       {
         foundTaskId = rdr.GetInt32(0);
         foundTaskDescription = rdr.GetString(1);
         foundTaskDateTime = rdr.GetDateTime(2);
+        foundTaskIsDone = rdr.GetBoolean(3);
       }
-      Task foundTask = new Task(foundTaskDescription, foundTaskDateTime, foundTaskId);
+      Task foundTask = new Task(foundTaskDescription, foundTaskDateTime, foundTaskIsDone, foundTaskId);
 
       if (rdr != null)
       {

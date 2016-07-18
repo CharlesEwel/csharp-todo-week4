@@ -156,5 +156,22 @@ namespace ToDoList
       Assert.Equal(testCategoryTasks, resultCategoryTasks);
     }
 
+    [Fact]
+    public void Test_Complete_CompletesTaskWhenDone()
+    {
+      //Arrange
+      string testDescription = "Mow the lawn";
+      DateTime? taskDate = new DateTime(2016, 7, 12);
+      Task testTask = new Task(testDescription, taskDate);
+      testTask.Save();
+
+      //Act
+      testTask.Complete();
+      bool result = testTask.IsDone();
+
+      //Assert
+      Assert.Equal(true, result);
+    }
+
   }
 }
