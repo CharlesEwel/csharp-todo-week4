@@ -58,6 +58,17 @@ namespace ToDoList
     public void Complete()
     {
       _isDone = true;
+
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+      SqlCommand cmd = new SqlCommand("UPDATE tasks SET is_done = 1 WHERE id = @IdParameter;", conn);
+
+      SqlParameter idParameter = new SqlParameter();
+      idParameter.ParameterName = "@IdParameter";
+      idParameter.Value = this.GetId();
+      cmd.Parameters.Add(idParameter);
+
+      cmd.ExecuteNonQuery();
     }
 
     public static List<Task> GetAll()
@@ -97,7 +108,7 @@ namespace ToDoList
     {
       SqlConnection conn = DB.Connection();
       conn.Open();
-      SqlCommand cmd = new SqlCommand("DELETE FROM tasks;", conn);
+      SqlCommand cmd = new SqlCommand("DELETE FROM tasks; DELETE FROM categories_tasks;", conn);
       cmd.ExecuteNonQuery();
     }
 

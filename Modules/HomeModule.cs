@@ -13,6 +13,13 @@ namespace ToDoList
         return View["index.cshtml", categoryList];
       };
 
+      Delete["/"]=_=>{
+        Category.DeleteAll();
+        Task.DeleteAll();
+        List<Category> categoryList = Category.GetAll();
+        return View["index.cshtml", categoryList];
+      };
+
       Get["/category/add"] = _ => View["add_category.cshtml"];
 
       Post["/category/add"] = _ => {
@@ -30,9 +37,6 @@ namespace ToDoList
       Post["/task/add"] = _ => {
         Task newTask = new Task(Request.Form["description"], Request.Form["date"]);
         newTask.Save();
-        Category currentCategory = Category.Find(Request.Form["category-id"]);
-        currentCategory.AddTask(newTask);
-        // Console.WriteLine(newTask.GetDescription());
         List<Category> categoryList = Category.GetAll();
         return View["index.cshtml", categoryList];
       };
@@ -108,6 +112,19 @@ namespace ToDoList
         task.Delete();
         List<Category> categoryList = Category.GetAll();
         return View["index.cshtml", categoryList];
+      };
+
+      Patch["task/{id}/complete"] = parameters =>
+      {
+        Task task = Task.Find(parameters.id);
+        task.Complete();
+        Dictionary<string, object> model = new Dictionary<string, object>();
+        List<Category> TaskCategories = task.GetCategories();
+        List<Category> AllCategories = Category.GetAll();
+        model.Add("task", task);
+        model.Add("taskCategories", TaskCategories);
+        model.Add("allCategories", AllCategories);
+        return View["task.cshtml", model];
       };
 
 

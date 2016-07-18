@@ -1,6 +1,14 @@
 <h1>To Do List</h1>
 <h2>Task: @Model["task"].GetDescription()</h2>
 <hr />
+@if(Model["task"].IsDone())
+{
+  <h2>Completed: Yes</h2>
+}
+else
+{
+  <h2>Completed: No</h2>
+}
 @if (@Model["taskCategories"].Count != 0)
 {
   <h4>This task has these categories:</h4>
@@ -16,6 +24,14 @@
   <input type="hidden" name="_method" value="DELETE">
   <button type="submit" name="button">Delete Task</button>
 </form>
+@if(!Model["task"].IsDone())
+{
+  <form class="" action='/task/@Model["task"].GetId()/complete' method="post">
+    <input type="hidden" name="_method" value="PATCH">
+    <button type="submit">Mark As Complete</button>
+  </form>
+}
+
 
 <h4>Add a category to this task:</h4>
 <form action='/task/add_category' method='post'>

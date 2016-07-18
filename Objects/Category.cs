@@ -124,7 +124,7 @@ namespace ToDoList
     {
       SqlConnection conn = DB.Connection();
       conn.Open();
-      SqlCommand cmd = new SqlCommand("DELETE FROM categories;", conn);
+      SqlCommand cmd = new SqlCommand("DELETE FROM categories; DELETE FROM categories_tasks;", conn);
       cmd.ExecuteNonQuery();
     }
 
