@@ -2,7 +2,11 @@
 
 #### Short Description
 
+A todo list that allows users to create tasks, rank them by priority and assign them categories. Uses SQL to store the database info.
+
 #### Author(s)
+
+Charles Ewel and Carl Egbert
 
 ## Description
 
